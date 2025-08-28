@@ -119,13 +119,6 @@ export default function IdeaSubmissionScreen() {
                     <View style={styles.header}>
                         <View style={styles.titleContainer}>
                             <Text style={styles.title}>Submit Your Startup Idea</Text>
-                            <TouchableOpacity onPress={toggleTheme} style={styles.themeToggle}>
-                                <Ionicons
-                                    name={isDark ? 'sunny' : 'moon'}
-                                    size={24}
-                                    color={theme.colors.text}
-                                />
-                            </TouchableOpacity>
                         </View>
                         <Text style={styles.subtitle}>
                             Share your innovative idea and get AI-powered feedback!
@@ -134,9 +127,10 @@ export default function IdeaSubmissionScreen() {
 
                     <Animated.View style={[styles.form, animatedFormStyle]}>
                         <View style={styles.inputContainer}>
-                            <Text style={styles.label}>
-                                <Ionicons name="rocket" size={16} color={theme.colors.primary} /> Startup Name
-                            </Text>
+                            <View style={styles.labelContainer}>
+                                <Ionicons name="rocket" size={18} color={theme.colors.primary} />
+                                <Text style={styles.label}>Startup Name</Text>
+                            </View>
                             <TextInput
                                 style={styles.input}
                                 value={formData.name}
@@ -148,23 +142,25 @@ export default function IdeaSubmissionScreen() {
                         </View>
 
                         <View style={styles.inputContainer}>
-                            <Text style={styles.label}>
-                                <Ionicons name="flash" size={16} color={theme.colors.primary} /> Tagline
-                            </Text>
+                            <View style={styles.labelContainer}>
+                                <Ionicons name="flash" size={18} color={theme.colors.primary} />
+                                <Text style={styles.label}>Tagline</Text>
+                            </View>
                             <TextInput
                                 style={styles.input}
                                 value={formData.tagline}
                                 onChangeText={(text) => setFormData(prev => ({ ...prev, tagline: text }))}
-                                placeholder="A catchy one-liner describing your startup"
+                                placeholder="Catchy one-liner for your startup"
                                 placeholderTextColor={theme.colors.textSecondary}
                                 maxLength={100}
                             />
                         </View>
 
                         <View style={styles.inputContainer}>
-                            <Text style={styles.label}>
-                                <Ionicons name="document-text" size={16} color={theme.colors.primary} /> Description
-                            </Text>
+                            <View style={styles.labelContainer}>
+                                <Ionicons name="document-text" size={18} color={theme.colors.primary} />
+                                <Text style={styles.label}>Description</Text>
+                            </View>
                             <TextInput
                                 style={[styles.input, styles.textArea]}
                                 value={formData.description}
@@ -250,11 +246,17 @@ const createStyles = (theme: ThemeType) => StyleSheet.create({
     inputContainer: {
         gap: 8,
     },
+    labelContainer: {
+        flexDirection: 'row',
+        gap: 8,
+        alignItems: 'center',
+        marginBottom: 4,
+
+    },
     label: {
         fontSize: 16,
         fontFamily: 'Inter-Medium',
         color: theme.colors.text,
-        marginBottom: 4,
     },
     input: {
         backgroundColor: theme.colors.surface,

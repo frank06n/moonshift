@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
     View,
     Text,
@@ -17,13 +17,10 @@ import { Toast } from 'toastify-react-native';
 import Animated, {
     useAnimatedStyle,
     useSharedValue,
-    withSpring,
-    runOnJS,
 } from 'react-native-reanimated';
-import { Swipeable, GestureHandlerRootView } from 'react-native-gesture-handler';
-import * as Sharing from 'expo-sharing';
+import { Swipeable } from 'react-native-gesture-handler';
 import { ThemeType, useTheme } from '../../../context/ThemeContext';
-import { Theme, useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
 import { SubmittedIdea } from '../../../types/idea';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -158,62 +155,73 @@ export default function IdeaListingScreen() {
             </TouchableOpacity>
         );
 
-        return (
-            <Swipeable renderRightActions={renderRightActions}>
-                <AnimatedTouchableOpacity
-                    style={[styles.ideaCard, animatedCardStyle]}
-                    onPress={handleCardPress}
-                >
-                    <LinearGradient
-                        colors={[theme.colors.card, theme.colors.surface]}
-                        style={styles.cardGradient}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 1 }}
-                    >
-                        <View style={styles.cardHeader}>
-                            <View style={styles.ideaInfo}>
-                                <Text style={styles.ideaName} numberOfLines={1}>
-                                    {idea.name}
-                                </Text>
-                                <Text style={styles.ideaTagline} numberOfLines={2}>
-                                    {idea.tagline}
-                                </Text>
-                            </View>
-                            <View style={[styles.ratingBadge, { backgroundColor: getRatingColor(idea.aiRating) }]}>
-                                <Text style={styles.ratingText}>{idea.aiRating}</Text>
-                            </View>
-                        </View>
+        return <TouchableOpacity
+            style={styles.ideaCard}
+            onPress={handleCardPress}
+        >
+            <LinearGradient
+                colors={[theme.colors.card, theme.colors.surface]}
+                style={styles.cardGradient}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+            >
+                <View style={styles.cardHeader}>
+                    <View style={styles.ideaInfo}>
+                        <Text style={styles.ideaName} numberOfLines={1}>
+                            {idea.name}
+                        </Text>
+                        <Text style={styles.ideaTagline} numberOfLines={2}>
+                            {idea.tagline}
+                        </Text>
+                    </View>
+                    <View style={[styles.ratingBadge, { backgroundColor: getRatingColor(idea.aiRating) }]}>
+                        <Text style={styles.ratingText}>{idea.aiRating}</Text>
+                    </View>
+                </View>
 
-                        <View style={styles.cardFooter}>
-                            <TouchableOpacity
-                                style={[
-                                    styles.voteButton,
-                                    hasVoted && styles.votedButton
-                                ]}
-                                onPress={handleVotePress}
-                                disabled={hasVoted}
-                            >
-                                <Ionicons
-                                    name={hasVoted ? "heart" : "heart-outline"}
-                                    size={16}
-                                    color={hasVoted ? theme.colors.error : theme.colors.primary}
-                                />
-                                <Text style={[
-                                    styles.voteText,
-                                    hasVoted && styles.votedText
-                                ]}>
-                                    {idea.votes} {idea.votes === 1 ? 'vote' : 'votes'}
-                                </Text>
-                            </TouchableOpacity>
-
-                            <Text style={styles.dateText}>
-                                {new Date(idea.createdAt).toLocaleDateString()}
+                <View style={styles.cardFooter}>
+                    <View style={styles.cardFooterButtonsContainer}>
+                        <TouchableOpacity
+                            style={[
+                                styles.voteButton,
+                                hasVoted && styles.votedButton
+                            ]}
+                            onPress={handleVotePress}
+                            disabled={hasVoted}
+                        >
+                            <Ionicons
+                                name={hasVoted ? "heart" : "heart-outline"}
+                                size={16}
+                                color={hasVoted ? theme.colors.error : theme.colors.primary}
+                            />
+                            <Text style={[
+                                styles.voteText,
+                                hasVoted && styles.votedText
+                            ]}>
+                                {idea.votes} {idea.votes === 1 ? 'vote' : 'votes'}
                             </Text>
-                        </View>
-                    </LinearGradient>
-                </AnimatedTouchableOpacity>
-            </Swipeable>
-        );
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={styles.shareButton}
+                            onPress={() => shareIdea(idea)}
+                        >
+                            <Ionicons
+                                name={"share-social-outline"}
+                                size={16}
+                                color={theme.colors.primary}
+                            />
+                            <Text style={styles.shareText}>
+                                Share
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+
+                    <Text style={styles.dateText}>
+                        {new Date(idea.createdAt).toLocaleDateString()}
+                    </Text>
+                </View>
+            </LinearGradient>
+        </TouchableOpacity>;
     };
 
     const styles = createStyles(theme);
@@ -265,7 +273,7 @@ export default function IdeaListingScreen() {
                     keyExtractor={(item) => item.id}
                     renderItem={({ item, index }) => <IdeaCard idea={item} index={index} />}
                     refreshControl={
-                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[theme.colors.primary]} />
                     }
                     contentContainerStyle={styles.listContainer}
                     showsVerticalScrollIndicator={false}
@@ -323,14 +331,17 @@ const createStyles = (theme: ThemeType) => StyleSheet.create({
         padding: 20,
         gap: 16,
     },
+    swipeableContainer: {
+    },
     ideaCard: {
         borderRadius: 16,
         overflow: 'hidden',
+        borderWidth: 0,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
         shadowRadius: 4,
-        elevation: 3,
+        elevation: 2,
     },
     cardGradient: {
         padding: 20,
@@ -374,6 +385,10 @@ const createStyles = (theme: ThemeType) => StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
     },
+    cardFooterButtonsContainer: {
+        flexDirection: 'row',
+        gap: 16
+    },
     voteButton: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -382,9 +397,28 @@ const createStyles = (theme: ThemeType) => StyleSheet.create({
         paddingVertical: 4,
         borderRadius: 12,
         backgroundColor: theme.colors.surface,
+        borderWidth: 1,
+        borderColor: theme.colors.border,
     },
     votedButton: {
         backgroundColor: theme.colors.error as string + '20',
+        borderColor: theme.colors.error as string + '20',
+    },
+    shareButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 12,
+        backgroundColor: theme.colors.surface,
+        borderWidth: 1,
+        borderColor: theme.colors.border,
+    },
+    shareText: {
+        fontSize: 12,
+        fontFamily: 'Inter-Medium',
+        color: theme.colors.primary,
     },
     voteText: {
         fontSize: 12,
