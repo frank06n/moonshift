@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import {
     View,
     Text,
@@ -6,27 +6,16 @@ import {
     StyleSheet,
     TouchableOpacity,
     RefreshControl,
-    Dimensions,
     ColorValue,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Animated, {
-    useAnimatedStyle,
-    useSharedValue,
-    withSpring,
-    withDelay,
-    runOnJS,
-} from 'react-native-reanimated';
 import { useFocusEffect } from '@react-navigation/native';
 import { ThemeType, useTheme } from '../../context/ThemeContext';
 import { useRouter } from 'expo-router';
 import { SubmittedIdea } from '../../types/idea';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-const { width } = Dimensions.get('window');
-const AnimatedView = Animated.createAnimatedComponent(View);
 
 export default function LeaderboardScreen() {
     const { theme, isDark, toggleTheme } = useTheme();
@@ -89,19 +78,6 @@ export default function LeaderboardScreen() {
     };
 
     const LeaderboardItem = ({ idea, index }: { idea: SubmittedIdea; index: number }) => {
-        const itemOpacity = useSharedValue(0);
-        const itemTranslateY = useSharedValue(50);
-
-        React.useEffect(() => {
-            itemOpacity.value = withDelay(index * 100, withSpring(1));
-            itemTranslateY.value = withDelay(index * 100, withSpring(0));
-        }, [index]);
-
-        const animatedStyle = useAnimatedStyle(() => ({
-            opacity: itemOpacity.value,
-            transform: [{ translateY: itemTranslateY.value }],
-        }));
-
         const handlePress = () => {
             router.push({
                 pathname: '/ideas/detail',
@@ -109,53 +85,48 @@ export default function LeaderboardScreen() {
             });
         };
 
-        return (
-            <AnimatedView style={[styles.leaderboardItem, animatedStyle]}>
-                <TouchableOpacity onPress={handlePress} style={styles.itemTouchable}>
-                    <LinearGradient
-                        colors={getRankColor(index)}
-                        style={styles.itemGradient}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 1 }}
-                    >
-                        <View style={styles.rankContainer}>
-                            <Text style={styles.rankEmoji}>
-                                {typeof getRankIcon(index) === 'string' && getRankIcon(index).includes('🎖')
-                                    ? getRankIcon(index)
-                                    : getRankIcon(index)}
-                            </Text>
-                            {index >= 3 && (
-                                <View style={styles.rankNumber}>
-                                    <Text style={styles.rankNumberText}>{index + 1}</Text>
-                                </View>
-                            )}
+        return <TouchableOpacity onPress={handlePress} style={styles.itemTouchable}>
+            <LinearGradient
+                colors={getRankColor(index)}
+                style={styles.itemGradient}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+            >
+                <View style={styles.rankContainer}>
+
+                    {index < 3
+                        ? <Text style={styles.rankEmoji}>
+                            {getRankIcon(index)}
+                        </Text>
+                        : <View style={styles.rankNumber}>
+                            <Text style={styles.rankNumberText}>{index + 1}</Text>
                         </View>
+                    }
+                </View>
 
-                        <View style={styles.ideaDetails}>
-                            <Text style={styles.leaderboardIdeaName} numberOfLines={1}>
-                                {idea.name}
-                            </Text>
-                            <Text style={styles.leaderboardTagline} numberOfLines={2}>
-                                {idea.tagline}
-                            </Text>
+                <View style={styles.ideaDetails}>
+                    <Text style={styles.leaderboardIdeaName} numberOfLines={1}>
+                        {idea.name}
+                    </Text>
+                    <Text style={styles.leaderboardTagline} numberOfLines={2}>
+                        {idea.tagline}
+                    </Text>
 
-                            <View style={styles.statsRow}>
-                                <View style={styles.statBadge}>
-                                    <Ionicons name="heart" size={14} color="rgba(255,255,255,0.9)" />
-                                    <Text style={styles.statText}>{idea.votes}</Text>
-                                </View>
-                                <View style={styles.statBadge}>
-                                    <Ionicons name="star" size={14} color="rgba(255,255,255,0.9)" />
-                                    <Text style={styles.statText}>{idea.aiRating}</Text>
-                                </View>
-                            </View>
+                    <View style={styles.statsRow}>
+                        <View style={styles.statBadge}>
+                            <Ionicons name="heart" size={14} color="rgba(255,255,255,0.9)" />
+                            <Text style={styles.statText}>{idea.votes}</Text>
                         </View>
+                        <View style={styles.statBadge}>
+                            <Ionicons name="star" size={14} color="rgba(255,255,255,0.9)" />
+                            <Text style={styles.statText}>{idea.aiRating}</Text>
+                        </View>
+                    </View>
+                </View>
 
-                        <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.7)" />
-                    </LinearGradient>
-                </TouchableOpacity>
-            </AnimatedView>
-        );
+                <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.7)" />
+            </LinearGradient>
+        </TouchableOpacity>;
     };
 
     const topIdeas = getTopIdeas();
@@ -226,7 +197,7 @@ export default function LeaderboardScreen() {
                         <LeaderboardItem idea={item} index={index} />
                     )}
                     refreshControl={
-                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[theme.colors.primary]} />
                     }
                     contentContainerStyle={styles.listContainer}
                     showsVerticalScrollIndicator={false}
@@ -309,16 +280,17 @@ const createLeaderboardStyles = (theme: ThemeType) => StyleSheet.create({
         gap: 16,
     },
     leaderboardItem: {
+    },
+    itemTouchable: {
         borderRadius: 16,
         overflow: 'hidden',
+        flex: 1,
+        borderWidth: 0,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.15,
         shadowRadius: 8,
         elevation: 6,
-    },
-    itemTouchable: {
-        flex: 1,
     },
     itemGradient: {
         flexDirection: 'row',

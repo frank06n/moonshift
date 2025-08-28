@@ -14,18 +14,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Toast } from 'toastify-react-native';
-import Animated, {
-    useAnimatedStyle,
-    useSharedValue,
-} from 'react-native-reanimated';
-import { Swipeable } from 'react-native-gesture-handler';
 import { ThemeType, useTheme } from '../../../context/ThemeContext';
 import { useFocusEffect } from '@react-navigation/native';
 import { SubmittedIdea } from '../../../types/idea';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
 
 export default function IdeaListingScreen() {
     const { theme } = useTheme();
@@ -126,12 +119,7 @@ export default function IdeaListingScreen() {
     };
 
     const IdeaCard = ({ idea, index }: { idea: SubmittedIdea; index: number }) => {
-        const cardScale = useSharedValue(1);
         const hasVoted = votedIdeas.has(idea.id);
-
-        const animatedCardStyle = useAnimatedStyle(() => ({
-            transform: [{ scale: cardScale.value }],
-        }));
 
         const handleCardPress = () => {
             router.push({
@@ -144,16 +132,6 @@ export default function IdeaListingScreen() {
             e.stopPropagation();
             handleVote(idea.id);
         };
-
-        const renderRightActions = () => (
-            <TouchableOpacity
-                style={styles.shareAction}
-                onPress={() => shareIdea(idea)}
-            >
-                <Ionicons name="share" size={24} color="white" />
-                <Text style={styles.actionText}>Share</Text>
-            </TouchableOpacity>
-        );
 
         return <TouchableOpacity
             style={styles.ideaCard}
@@ -330,8 +308,6 @@ const createStyles = (theme: ThemeType) => StyleSheet.create({
     listContainer: {
         padding: 20,
         gap: 16,
-    },
-    swipeableContainer: {
     },
     ideaCard: {
         borderRadius: 16,
