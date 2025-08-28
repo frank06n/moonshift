@@ -20,9 +20,9 @@ import Animated, {
     runOnJS,
 } from 'react-native-reanimated';
 import { useFocusEffect } from '@react-navigation/native';
-import { ThemeType, useTheme } from '../context/ThemeContext';
+import { ThemeType, useTheme } from '../../context/ThemeContext';
 import { useRouter } from 'expo-router';
-import { SubmittedIdea } from '../types/idea';
+import { SubmittedIdea } from '../../types/idea';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');

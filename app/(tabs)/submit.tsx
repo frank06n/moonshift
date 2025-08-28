@@ -21,9 +21,9 @@ import Animated, {
     withTiming,
     runOnJS,
 } from 'react-native-reanimated';
-import { ThemeType, useTheme } from '../context/ThemeContext';
+import { ThemeType, useTheme } from '../../context/ThemeContext';
 import { useRouter } from 'expo-router';
-import { Idea, SubmittedIdea } from '../types/idea';
+import { Idea, SubmittedIdea } from '../../types/idea';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);

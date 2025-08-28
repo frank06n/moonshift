@@ -22,9 +22,9 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Swipeable, GestureHandlerRootView } from 'react-native-gesture-handler';
 import * as Sharing from 'expo-sharing';
-import { ThemeType, useTheme } from '../../context/ThemeContext';
+import { ThemeType, useTheme } from '../../../context/ThemeContext';
 import { Theme, useFocusEffect } from '@react-navigation/native';
-import { SubmittedIdea } from '../../types/idea';
+import { SubmittedIdea } from '../../../types/idea';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 

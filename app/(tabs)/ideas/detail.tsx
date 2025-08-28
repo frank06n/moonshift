@@ -19,9 +19,9 @@ import Animated, {
     withSpring,
 } from 'react-native-reanimated';
 // import * as Sharing from 'expo-sharing';
-import { ThemeType, useTheme } from '../../context/ThemeContext';
+import { ThemeType, useTheme } from '../../../context/ThemeContext';
 import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
-import { SubmittedIdea } from '../../types/idea';
+import { SubmittedIdea } from '../../../types/idea';
 import { Bot } from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');

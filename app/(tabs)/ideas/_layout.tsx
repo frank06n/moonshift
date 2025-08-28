@@ -1,5 +1,5 @@
 import { Stack } from "expo-router";
-import { useTheme } from "../../context/ThemeContext";
+import { useTheme } from "../../../context/ThemeContext";
 
 export default function IdeasLayout() {
     const { theme } = useTheme();
