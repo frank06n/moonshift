@@ -6,26 +6,25 @@ import {
     TouchableOpacity,
     StyleSheet,
     RefreshControl,
-    GestureResponderEvent,
-    Share,
-    ShareContent,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Ionicons } from '@expo/vector-icons';
 import { Toast } from 'toastify-react-native';
 import { ThemeType, useTheme } from '../../../context/ThemeContext';
 import { useFocusEffect } from '@react-navigation/native';
 import { SubmittedIdea } from '../../../types/idea';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import IdeaCard from '../../../components/IdeaCard';
+import Dialog from '../../../components/Dialog';
 
 export default function IdeaListingScreen() {
     const { theme } = useTheme();
     const [ideas, setIdeas] = useState<SubmittedIdea[]>([]);
-    const [sortBy, setSortBy] = useState('rating'); // 'rating' or 'votes'
+    const [sortBy, setSortBy] = useState<'votes' | 'rating'>('rating');
     const [refreshing, setRefreshing] = useState(false);
     const [votedIdeas, setVotedIdeas] = useState(new Set());
+    const [showDialog, setShowDialog] = useState(false);
     const router = useRouter();
 
     useFocusEffect(
@@ -42,6 +41,9 @@ export default function IdeaListingScreen() {
                 const parsedIdeas = JSON.parse(savedIdeas);
                 setIdeas(parsedIdeas);
             }
+            else {
+                setIdeas([]);
+            }
         } catch (error) {
             console.error('Error loading ideas:', error);
         }
@@ -52,6 +54,9 @@ export default function IdeaListingScreen() {
             const voted = await AsyncStorage.getItem('votedIdeas');
             if (voted) {
                 setVotedIdeas(new Set(JSON.parse(voted)));
+            }
+            else {
+                setVotedIdeas(new Set());
             }
         } catch (error) {
             console.error('Error loading voted ideas:', error);
@@ -84,19 +89,6 @@ export default function IdeaListingScreen() {
         }
     };
 
-    const shareIdea = async (idea: SubmittedIdea) => {
-        try {
-            const shareMessage = `🚀 Check out this startup idea: ${idea.name}\n\n"${idea.tagline}"\n\n${idea.description}\n\n🤖 AI Rating: ${idea.aiRating}/100\n❤️ Votes: ${idea.votes}`;
-            await Share.share({
-                title: 'Startup Evaluator',
-                message: shareMessage,
-            } as ShareContent);
-        } catch (error) {
-            console.error('Error sharing:', error);
-            Toast.error('Error sharing idea', 'top');
-        }
-    };
-
     const onRefresh = useCallback(async () => {
         setRefreshing(true);
         await loadIdeas();
@@ -111,96 +103,6 @@ export default function IdeaListingScreen() {
             return b.votes - a.votes;
         }
     });
-
-    const getRatingColor = (rating: number) => {
-        if (rating >= 80) return theme.colors.success;
-        if (rating >= 60) return theme.colors.secondary;
-        return theme.colors.error;
-    };
-
-    const IdeaCard = ({ idea, index }: { idea: SubmittedIdea; index: number }) => {
-        const hasVoted = votedIdeas.has(idea.id);
-
-        const handleCardPress = () => {
-            router.push({
-                pathname: '/ideas/detail',
-                params: { ideaData: JSON.stringify(idea) },
-            });
-        };
-
-        const handleVotePress = (e: GestureResponderEvent) => {
-            e.stopPropagation();
-            handleVote(idea.id);
-        };
-
-        return <TouchableOpacity
-            style={styles.ideaCard}
-            onPress={handleCardPress}
-        >
-            <LinearGradient
-                colors={[theme.colors.card, theme.colors.surface]}
-                style={styles.cardGradient}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-            >
-                <View style={styles.cardHeader}>
-                    <View style={styles.ideaInfo}>
-                        <Text style={styles.ideaName} numberOfLines={1}>
-                            {idea.name}
-                        </Text>
-                        <Text style={styles.ideaTagline} numberOfLines={2}>
-                            {idea.tagline}
-                        </Text>
-                    </View>
-                    <View style={[styles.ratingBadge, { backgroundColor: getRatingColor(idea.aiRating) }]}>
-                        <Text style={styles.ratingText}>{idea.aiRating}</Text>
-                    </View>
-                </View>
-
-                <View style={styles.cardFooter}>
-                    <View style={styles.cardFooterButtonsContainer}>
-                        <TouchableOpacity
-                            style={[
-                                styles.voteButton,
-                                hasVoted && styles.votedButton
-                            ]}
-                            onPress={handleVotePress}
-                            disabled={hasVoted}
-                        >
-                            <Ionicons
-                                name={hasVoted ? "heart" : "heart-outline"}
-                                size={16}
-                                color={hasVoted ? theme.colors.error : theme.colors.primary}
-                            />
-                            <Text style={[
-                                styles.voteText,
-                                hasVoted && styles.votedText
-                            ]}>
-                                {idea.votes} {idea.votes === 1 ? 'vote' : 'votes'}
-                            </Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={styles.shareButton}
-                            onPress={() => shareIdea(idea)}
-                        >
-                            <Ionicons
-                                name={"share-social-outline"}
-                                size={16}
-                                color={theme.colors.primary}
-                            />
-                            <Text style={styles.shareText}>
-                                Share
-                            </Text>
-                        </TouchableOpacity>
-                    </View>
-
-                    <Text style={styles.dateText}>
-                        {new Date(idea.createdAt).toLocaleDateString()}
-                    </Text>
-                </View>
-            </LinearGradient>
-        </TouchableOpacity>;
-    };
 
     const styles = createStyles(theme);
 
@@ -228,6 +130,18 @@ export default function IdeaListingScreen() {
                             Votes
                         </Text>
                     </TouchableOpacity>
+                    <View style={{ flex: 1, alignSelf: 'stretch', flexDirection: 'row-reverse', alignItems: 'stretch' }}>
+                        <TouchableOpacity style={{
+                            aspectRatio: 1,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            borderRadius: 100,
+                            backgroundColor: theme.colors.error as string + '20',
+                        }}
+                            onPress={() => setShowDialog(true)}>
+                            <Ionicons name="trash" size={16} color={theme.colors.error} />
+                        </TouchableOpacity>
+                    </View>
                 </View>
             </View>
 
@@ -249,7 +163,7 @@ export default function IdeaListingScreen() {
                 <FlatList
                     data={sortedIdeas}
                     keyExtractor={(item) => item.id}
-                    renderItem={({ item, index }) => <IdeaCard idea={item} index={index} />}
+                    renderItem={({ item, index }) => <IdeaCard idea={item} hasVoted={votedIdeas.has(item.id)} handleVote={handleVote} />}
                     refreshControl={
                         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[theme.colors.primary]} />
                     }
@@ -257,6 +171,19 @@ export default function IdeaListingScreen() {
                     showsVerticalScrollIndicator={false}
                 />
             )}
+
+            <Dialog
+                visible={showDialog}
+                title="Confirm Delete"
+                message="Are you sure you want to delete all startup ideas?"
+                onYes={async () => {
+                    await AsyncStorage.clear();
+                    await loadIdeas();
+                    await loadVotedIdeas();
+                    setShowDialog(false);
+                }}
+                onNo={() => setShowDialog(false)}
+            />
         </SafeAreaView>
     );
 }
@@ -308,120 +235,6 @@ const createStyles = (theme: ThemeType) => StyleSheet.create({
     listContainer: {
         padding: 20,
         gap: 16,
-    },
-    ideaCard: {
-        borderRadius: 16,
-        overflow: 'hidden',
-        borderWidth: 0,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 2,
-    },
-    cardGradient: {
-        padding: 20,
-    },
-    cardHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'flex-start',
-        marginBottom: 16,
-        gap: 12,
-    },
-    ideaInfo: {
-        flex: 1,
-    },
-    ideaName: {
-        fontSize: 18,
-        fontFamily: 'Inter-Bold',
-        color: theme.colors.text,
-        marginBottom: 4,
-    },
-    ideaTagline: {
-        fontSize: 14,
-        fontFamily: 'Inter-Regular',
-        color: theme.colors.textSecondary,
-        lineHeight: 20,
-    },
-    ratingBadge: {
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: 12,
-        minWidth: 40,
-        alignItems: 'center',
-    },
-    ratingText: {
-        color: 'white',
-        fontSize: 16,
-        fontFamily: 'Inter-Bold',
-    },
-    cardFooter: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-    },
-    cardFooterButtonsContainer: {
-        flexDirection: 'row',
-        gap: 16
-    },
-    voteButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 4,
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: 12,
-        backgroundColor: theme.colors.surface,
-        borderWidth: 1,
-        borderColor: theme.colors.border,
-    },
-    votedButton: {
-        backgroundColor: theme.colors.error as string + '20',
-        borderColor: theme.colors.error as string + '20',
-    },
-    shareButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 4,
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: 12,
-        backgroundColor: theme.colors.surface,
-        borderWidth: 1,
-        borderColor: theme.colors.border,
-    },
-    shareText: {
-        fontSize: 12,
-        fontFamily: 'Inter-Medium',
-        color: theme.colors.primary,
-    },
-    voteText: {
-        fontSize: 12,
-        fontFamily: 'Inter-Medium',
-        color: theme.colors.primary,
-    },
-    votedText: {
-        color: theme.colors.error,
-    },
-    dateText: {
-        fontSize: 12,
-        fontFamily: 'Inter-Regular',
-        color: theme.colors.textSecondary,
-    },
-    shareAction: {
-        backgroundColor: theme.colors.primary,
-        justifyContent: 'center',
-        alignItems: 'center',
-        width: 80,
-        borderTopRightRadius: 16,
-        borderBottomRightRadius: 16,
-    },
-    actionText: {
-        color: 'white',
-        fontSize: 12,
-        fontFamily: 'Inter-Medium',
-        marginTop: 4,
     },
     emptyState: {
         flex: 1,
