@@ -70,9 +70,9 @@ export default function LeaderboardScreen() {
 
     const getRankColor = (index: number): [ColorValue, ColorValue] => {
         switch (index) {
-            case 0: return ['#FFD700', '#FFA500'];
-            case 1: return ['#C0C0C0', '#A8A8A8'];
-            case 2: return ['#CD7F32', '#B8860B'];
+            case 0: return ['#FFD700', '#e68207ff'];
+            case 1: return ['#a3acbaff', '#878d96ff'];
+            case 2: return ['#CD7F32', '#8c4d00ff'];
             default: return theme.colors.gradient;
         }
     };

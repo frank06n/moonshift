@@ -6,7 +6,6 @@ import {
     ScrollView,
     TouchableOpacity,
     Share,
-    Dimensions,
     ShareContent,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -18,13 +17,12 @@ import Animated, {
     useSharedValue,
     withSpring,
 } from 'react-native-reanimated';
-// import * as Sharing from 'expo-sharing';
 import { ThemeType, useTheme } from '../../../context/ThemeContext';
 import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import { SubmittedIdea } from '../../../types/idea';
 import { Bot } from 'lucide-react-native';
+import Constants from 'expo-constants';
 
-const { width } = Dimensions.get('window');
 const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
 
 export default function IdeaDetailScreen() {
@@ -116,7 +114,7 @@ export default function IdeaDetailScreen() {
                 }
             } else if (result.action === Share.dismissedAction) {
                 // dismissed
-                
+
             }
 
             // if (await Sharing.isAvailableAsync()) {
@@ -167,6 +165,8 @@ export default function IdeaDetailScreen() {
                 end={{ x: 1, y: 1 }}
             >
                 <View style={styles.heroContent}>
+                    <Ionicons style={styles.backButton} name="arrow-back" size={24} color={"white"} onPress={() => navigation.goBack()} />
+
                     <Text style={styles.ideaName}>{currentIdea.name}</Text>
                     <Text style={styles.ideaTagline}>{currentIdea.tagline}</Text>
 
@@ -253,7 +253,7 @@ export default function IdeaDetailScreen() {
                         colors={[theme.colors.primary, theme.colors.primaryLight]}
                         style={styles.buttonGradient}
                     >
-                        <Ionicons name="share" size={24} color="white" />
+                        <Ionicons name="share-social" size={24} color="white" />
                         <Text style={styles.actionButtonText}>Share</Text>
                     </LinearGradient>
                 </AnimatedTouchableOpacity>
@@ -269,12 +269,20 @@ const createDetailStyles = (theme: ThemeType) => StyleSheet.create({
     },
     heroSection: {
         paddingHorizontal: 20,
-        paddingVertical: 30,
+        paddingTop: 30 + Constants.statusBarHeight,
+        paddingBottom: 30,
         minHeight: 200,
     },
     heroContent: {
         alignItems: 'center',
         gap: 16,
+        position: 'relative',
+    },
+    backButton: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        padding: 8,
     },
     ideaName: {
         fontSize: 28,
@@ -381,10 +389,10 @@ const createDetailStyles = (theme: ThemeType) => StyleSheet.create({
         flexDirection: 'row',
         paddingHorizontal: 20,
         paddingVertical: 30,
+        justifyContent: 'center',
         gap: 16,
     },
     actionButton: {
-        flex: 1,
         borderRadius: 16,
         overflow: 'hidden',
     },
@@ -392,13 +400,13 @@ const createDetailStyles = (theme: ThemeType) => StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 16,
         gap: 8,
     },
     buttonGradient: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
+        width: 140,
         paddingVertical: 16,
         gap: 8,
     },

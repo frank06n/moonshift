@@ -44,7 +44,11 @@ export default function IdeaSubmissionScreen() {
 
     const generateAIRating = () => {
         // Generate a fake AI rating between 0-100
-        return Math.floor(Math.random() * 101);
+        return Math.floor(40 + Math.random() * 61);
+    };
+    const generateVotes = () => {
+        // Generate fake votes
+        return Math.floor(Math.random() * 60);
     };
 
     const saveIdea = async () => {
@@ -66,7 +70,7 @@ export default function IdeaSubmissionScreen() {
                 tagline: formData.tagline.trim(),
                 description: formData.description.trim(),
                 aiRating: generateAIRating(),
-                votes: 0,
+                votes: generateVotes(),
                 createdAt: new Date().toISOString(),
             };
 
