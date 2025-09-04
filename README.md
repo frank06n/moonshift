@@ -2,6 +2,9 @@
 
 The Startup Idea Evaluator is a mobile application that lets users submit their startup ideas, receive a fun, fake AI-generated feedback rating, and vote on other users' ideas. It features a dynamic leaderboard to showcase the top-rated and most-voted ideas in the community.
 
+**Demo video: [click here](https://youtu.be/NAO90_qx5-k)**  
+**Download APK: [click here](https://github.com/frank06n/moonshift/releases/download/release/startup_evaluator_v1.apk)**
+
 -----
 
 ## 🛠️ Tech Stack
@@ -35,6 +38,21 @@ The Startup Idea Evaluator is a mobile application that lets users submit their 
       * **Share Functionality**: Users can share an idea via social media or clipboard.
       * **Animations**: The app incorporates swipe gestures and animations for an enhanced user experience.
 
+-----
+
+## 📲 Screenshots
+<img src="https://github.com/user-attachments/assets/20481a23-b111-4a42-ae72-0bfecf5cba90" width="200" alt="screenshot"/>
+<img src="https://github.com/user-attachments/assets/f03b68ba-c88c-4e46-9110-b474a549b915" width="200" alt="screenshot"/>
+<img src="https://github.com/user-attachments/assets/d86d2b14-7c7d-4324-bcb9-b3b002dee25d" width="200" alt="screenshot"/>
+<img src="https://github.com/user-attachments/assets/8f3b5c7c-db38-42ab-aa59-edb9d972c9a8" width="200" alt="screenshot"/>
+<img src="https://github.com/user-attachments/assets/27fa468c-747d-4818-81d1-b789c90e4ca1" width="200" alt="screenshot"/>
+<img src="https://github.com/user-attachments/assets/bbadc383-24b7-4803-85e0-66a00b531001" width="200" alt="screenshot"/>
+<img src="https://github.com/user-attachments/assets/1d474578-3b2f-42fb-a3a5-b3529846e3a0" width="200" alt="screenshot"/>
+<img src="https://github.com/user-attachments/assets/11dc4792-ef6b-4f5b-940d-1484b298aaa5" width="200" alt="screenshot"/>
+<img src="https://github.com/user-attachments/assets/25028a14-4041-4e3d-b3de-d1ec60fb03b3" width="200" alt="screenshot"/>
+<img src="https://github.com/user-attachments/assets/79ecc39d-68ea-4a82-8e55-2eb8ee0eeb96" width="200" alt="screenshot"/>
+<img src="https://github.com/user-attachments/assets/7b939ecf-046f-4f7b-8013-26f63ab68b37" width="200" alt="screenshot"/>
+<img src="https://github.com/user-attachments/assets/cc4ecd5b-e64f-4b5b-8be2-2a1f69e89b93" width="200" alt="screenshot"/>
 
 -----
 
@@ -43,7 +61,7 @@ The Startup Idea Evaluator is a mobile application that lets users submit their 
 If you prefer to install a standalone Android application, you can use the provided APK file.
 
 1.  **Download the APK file**:
-      * [Download Link for the APK]
+      * _[Download Link for the APK](https://github.com/frank06n/moonshift/releases/download/release/startup_evaluator_v1.apk)_
 2.  **Enable "Install from Unknown Sources"**:
       * On your Android device, go to **Settings \> Apps & notifications \> Special access \> Install unknown apps**.
       * Select the app you will use to open the file (e.g., your browser or file manager) and toggle on **Allow from this source**.
@@ -57,39 +75,92 @@ If you prefer to install a standalone Android application, you can use the provi
 
 ## ⚙️ How to Run Locally
 
-To get the app running on your local machine, follow these steps:
+Follow these steps to run the app on your local machine:
 
-1.  **Clone the repository**:
+1. **Clone the repository**:
 
-    ```bash
-    git clone https://github.com/frank06n/moonshift
-    ```
+   ```bash
+   git clone https://github.com/frank06n/moonshift
+   ```
 
-2.  **Navigate to the project directory**:
+2. **Navigate to the project directory**:
 
-    ```bash
-    cd moonshift
-    ```
+   ```bash
+   cd moonshift
+   ```
 
-3.  **Install dependencies**:
+3. **Install dependencies**:
 
-    ```bash
-    npx expo install
-    ```
+   ```bash
+   npm install
+   ```
 
-4.  **Start the development server**:
+---
 
-    ```bash
-    npx expo start
-    ```
+### ▶️ Option 1: Run with EAS Build (Recommended)
 
-    This command will launch the Metro bundler and provide a QR code in your terminal.
+Since the project includes native libraries we need a custom development build.
 
-5.  **Run on a device or emulator**:
+1. **Remove** the existing `eas.projectId` from the `app.json`.
 
-      * **Using Expo Go**:
-          * Download the **Expo Go** app from the Google Play Store (Android) or App Store (iOS).
-          * On Android, scan the QR code from the terminal using the Expo Go app. On iOS, scan it with the regular camera app.
-      * **Using a simulator/emulator**:
-          * Press `a` in the terminal to launch on an Android emulator.
-          * Press `i` in the terminal to launch on an iOS simulator.
+2. Build the app with EAS:
+
+   ```bash
+   eas build --platform android --profile development
+   ```
+
+   or for a preview APK:
+
+   ```bash
+   eas build --platform android --profile preview
+   ```
+
+3. Install the generated APK/IPA on your device and start the dev server:
+
+   ```bash
+   npx expo start
+   ```
+
+---
+
+### ▶️ Option 2: Manual Build with Gradle
+
+If you want to build the APK manually without EAS:
+
+1. **Prebuild native projects**:
+
+   ```bash
+   npx expo prebuild
+   ```
+
+2. **Export JS bundle/assets**:
+
+   ```bash
+   npx expo export --output-dir android/app/src/main/assets
+   ```
+
+3. **Build with Gradle**:
+
+   * For a release build:
+
+     ```bash
+     cd android
+     ./gradlew assembleRelease
+     ```
+
+   * For a debug build:
+
+     ```bash
+     ./gradlew assembleDebug
+     ```
+
+   The generated APK will be available in `android/app/build/outputs/apk/`.
+
+---
+
+👉 After installing the APK, run the development server with:
+
+```bash
+npx expo start
+```
+
