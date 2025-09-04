@@ -4,7 +4,6 @@ import {
     Text,
     StyleSheet,
     ScrollView,
-    TouchableOpacity,
     Share,
     ShareContent,
 } from 'react-native';
@@ -12,18 +11,12 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Toast } from 'toastify-react-native';
-import Animated, {
-    useAnimatedStyle,
-    useSharedValue,
-    withSpring,
-} from 'react-native-reanimated';
 import { ThemeType, useTheme } from '../../../context/ThemeContext';
 import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import { SubmittedIdea } from '../../../types/idea';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import Constants from 'expo-constants';
-
-const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
+import BouncyButton from '../../../components/BouncyButton';
 
 export default function IdeaDetailScreen() {
     const { theme } = useTheme();
@@ -31,11 +24,7 @@ export default function IdeaDetailScreen() {
     const [currentIdea, setCurrentIdea] = useState(JSON.parse(ideaData) as SubmittedIdea);
     const [hasVoted, setHasVoted] = useState(false);
 
-    const heartScale = useSharedValue(1);
-    const shareScale = useSharedValue(1);
-
     const navigation = useNavigation();
-    const router = useRouter();
 
     useEffect(() => {
         checkVoteStatus();
@@ -59,10 +48,6 @@ export default function IdeaDetailScreen() {
             Toast.warn('You already voted for this idea!', 'top');
             return;
         }
-
-        heartScale.value = withSpring(1.3, {}, () => {
-            heartScale.value = withSpring(1);
-        });
 
         try {
             // Update idea votes
@@ -92,10 +77,6 @@ export default function IdeaDetailScreen() {
     };
 
     const handleShare = async () => {
-        shareScale.value = withSpring(0.95, {}, () => {
-            shareScale.value = withSpring(1);
-        });
-
         try {
             console.log('sharing');
             const shareMessage = `🚀 Check out this startup idea: ${currentIdea.name}\n\n"${currentIdea.tagline}"\n\n${currentIdea.description}\n\n🤖 AI Rating: ${currentIdea.aiRating}/100\n❤️ Votes: ${currentIdea.votes}`;
@@ -114,17 +95,8 @@ export default function IdeaDetailScreen() {
                 }
             } else if (result.action === Share.dismissedAction) {
                 // dismissed
-
+                console.log('share dismissed');
             }
-
-            // if (await Sharing.isAvailableAsync()) {
-            //     await Sharing.shareAsync(shareContent);
-            // } else {
-            //     // Fallback to React Native Share
-            //     await Share.share({
-            //         message: shareContent,
-            //     });
-            // }
         } catch (error) {
             console.error('Error sharing:', error);
             Toast.error('Error sharing idea', 'top');
@@ -145,14 +117,6 @@ export default function IdeaDetailScreen() {
         if (rating >= 50) return 'Below Average';
         return 'Needs Work';
     };
-
-    const animatedHeartStyle = useAnimatedStyle(() => ({
-        transform: [{ scale: heartScale.value }],
-    }));
-
-    const animatedShareStyle = useAnimatedStyle(() => ({
-        transform: [{ scale: shareScale.value }],
-    }));
 
     const styles = createDetailStyles(theme);
 
@@ -225,11 +189,7 @@ export default function IdeaDetailScreen() {
             </View>
 
             <View style={styles.actionSection}>
-                <AnimatedTouchableOpacity
-                    style={[styles.actionButton, styles.voteButton, animatedHeartStyle]}
-                    onPress={handleVote}
-                    disabled={hasVoted}
-                >
+                <BouncyButton onPress={handleVote} popOut style={styles.actionButton} disabled={hasVoted}>
                     <LinearGradient
                         colors={hasVoted ? [theme.colors.error, theme.colors.error] : [theme.colors.error, '#ff6b9d']}
                         style={[styles.buttonGradient, hasVoted && styles.votedGradient]}
@@ -243,12 +203,9 @@ export default function IdeaDetailScreen() {
                             {hasVoted ? 'Voted' : 'Vote'}
                         </Text>
                     </LinearGradient>
-                </AnimatedTouchableOpacity>
+                </BouncyButton>
 
-                <AnimatedTouchableOpacity
-                    style={[styles.actionButton, animatedShareStyle]}
-                    onPress={handleShare}
-                >
+                <BouncyButton onPress={handleShare} style={styles.actionButton}>
                     <LinearGradient
                         colors={[theme.colors.primary, theme.colors.primaryLight]}
                         style={styles.buttonGradient}
@@ -256,7 +213,7 @@ export default function IdeaDetailScreen() {
                         <Ionicons name="share-social" size={24} color="white" />
                         <Text style={styles.actionButtonText}>Share</Text>
                     </LinearGradient>
-                </AnimatedTouchableOpacity>
+                </BouncyButton>
             </View>
         </ScrollView>
     );
@@ -395,12 +352,6 @@ const createDetailStyles = (theme: ThemeType) => StyleSheet.create({
     actionButton: {
         borderRadius: 16,
         overflow: 'hidden',
-    },
-    voteButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 8,
     },
     buttonGradient: {
         flexDirection: 'row',

@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import {
     View,
     Text,
@@ -17,12 +17,42 @@ import { useRouter } from 'expo-router';
 import { SubmittedIdea } from '../../types/idea';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+const getRankIcon = (index: number) => {
+    switch (index) {
+        case 0: return '🥇';
+        case 1: return '🥈';
+        case 2: return '🥉';
+        default: return `${index + 1}`;
+    }
+};
+
+const getRankColor = (index: number, defaultColor: [ColorValue, ColorValue]): [ColorValue, ColorValue] => {
+    switch (index) {
+        case 0: return ['#FFD700', '#e68207ff'];
+        case 1: return ['#a3acbaff', '#878d96ff'];
+        case 2: return ['#CD7F32', '#8c4d00ff'];
+        default: return defaultColor;
+    }
+};
+
+const getTopIdeas = (ideas: SubmittedIdea[], sortBy: 'votes' | 'rating') => {
+    const sorted = [...ideas].sort((a, b) => {
+        if (sortBy === 'votes') {
+            return b.votes - a.votes;
+        } else {
+            return b.aiRating - a.aiRating;
+        }
+    });
+    return sorted.slice(0, 5);
+};
+
 export default function LeaderboardScreen() {
     const { theme, isDark, toggleTheme } = useTheme();
     const [ideas, setIdeas] = useState<SubmittedIdea[]>([]);
     const [refreshing, setRefreshing] = useState(false);
-    const [sortBy, setSortBy] = useState('votes'); // 'votes' or 'rating'
+    const [sortBy, setSortBy] = useState<'votes' | 'rating'>('votes');
     const router = useRouter();
+    const topIdeas = useMemo(() => getTopIdeas(ideas, sortBy), [ideas, sortBy]);
 
     useFocusEffect(
         useCallback(() => {
@@ -37,6 +67,9 @@ export default function LeaderboardScreen() {
                 const parsedIdeas = JSON.parse(savedIdeas);
                 setIdeas(parsedIdeas);
             }
+            else {
+                setIdeas([]);
+            }
         } catch (error) {
             console.error('Error loading ideas:', error);
         }
@@ -48,35 +81,6 @@ export default function LeaderboardScreen() {
         setRefreshing(false);
     }, []);
 
-    const getTopIdeas = () => {
-        const sorted = [...ideas].sort((a, b) => {
-            if (sortBy === 'votes') {
-                return b.votes - a.votes;
-            } else {
-                return b.aiRating - a.aiRating;
-            }
-        });
-        return sorted.slice(0, 5);
-    };
-
-    const getRankIcon = (index: number) => {
-        switch (index) {
-            case 0: return '🥇';
-            case 1: return '🥈';
-            case 2: return '🥉';
-            default: return `${index + 1}`;
-        }
-    };
-
-    const getRankColor = (index: number): [ColorValue, ColorValue] => {
-        switch (index) {
-            case 0: return ['#FFD700', '#e68207ff'];
-            case 1: return ['#a3acbaff', '#878d96ff'];
-            case 2: return ['#CD7F32', '#8c4d00ff'];
-            default: return theme.colors.gradient;
-        }
-    };
-
     const LeaderboardItem = ({ idea, index }: { idea: SubmittedIdea; index: number }) => {
         const handlePress = () => {
             router.push({
@@ -87,7 +91,7 @@ export default function LeaderboardScreen() {
 
         return <TouchableOpacity onPress={handlePress} style={styles.itemTouchable}>
             <LinearGradient
-                colors={getRankColor(index)}
+                colors={getRankColor(index, theme.colors.gradient)}
                 style={styles.itemGradient}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
@@ -129,7 +133,6 @@ export default function LeaderboardScreen() {
         </TouchableOpacity>;
     };
 
-    const topIdeas = getTopIdeas();
     const styles = createLeaderboardStyles(theme);
 
     return (
