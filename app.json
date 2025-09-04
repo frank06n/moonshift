@@ -7,32 +7,31 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#6366f1"
+      "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
     "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.yourname.startupevaluator"
+      "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#6366f1"
+        "backgroundColor": "#ffffff"
       },
-      "package": "com.yourname.startupevaluator"
+      "edgeToEdgeEnabled": true,
+      "package": "com.frank06n.seval"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-font"
+      "expo-router"
     ],
     "extra": {
+      "router": {},
       "eas": {
         "projectId": "de20a94a-60dd-4c94-a3ee-9f50ea703947"
       }

@@ -20,7 +20,7 @@ import Animated, {
 import { ThemeType, useTheme } from '../../../context/ThemeContext';
 import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import { SubmittedIdea } from '../../../types/idea';
-import { Bot } from 'lucide-react-native';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import Constants from 'expo-constants';
 
 const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
@@ -173,7 +173,7 @@ export default function IdeaDetailScreen() {
                     <View style={styles.statsContainer}>
                         <View style={styles.statItem}>
                             <View style={[styles.ratingBadge, { backgroundColor: getRatingColor(currentIdea.aiRating) }]}>
-                                <Bot size={20} color="white" />
+                                <MaterialCommunityIcons name="robot-outline" size={20} color="white" />
 
                                 <Text style={styles.ratingNumber}>{currentIdea.aiRating}</Text>
                             </View>

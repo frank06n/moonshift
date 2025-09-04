@@ -154,7 +154,7 @@ export default function IdeaListingScreen() {
                     </Text>
                     <TouchableOpacity
                         style={styles.submitFirstButton}
-                        onPress={() => router.push('/submit')}
+                        onPress={() => router.push('/')}
                     >
                         <Text style={styles.submitFirstButtonText}>Submit First Idea</Text>
                     </TouchableOpacity>

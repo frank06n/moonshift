@@ -182,7 +182,7 @@ export default function LeaderboardScreen() {
                     </Text>
                     <TouchableOpacity
                         style={styles.submitButton}
-                        onPress={() => router.push('submit')}
+                        onPress={() => router.push('/')}
                     >
                         <LinearGradient colors={theme.colors.gradient as [ColorValue, ColorValue]} style={styles.submitButtonGradient}>
                             <Text style={styles.submitButtonText}>Submit Idea</Text>
